@@ -91,5 +91,31 @@ function updateVisualization(data) {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", line);
+    
+    // Create a tooltip div that is hidden by default
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    // Add circles for data points and tooltips
+    svg.selectAll(".dot")
+        .data(data)
+        .enter().append("circle")
+        .attr("class", "dot")
+        .attr("cx", d => x(d.date))
+        .attr("cy", d => y(d.value))
+        .attr("r", 3)
+        .on("mouseover", function(event, d) {
+            tooltip.transition().duration(200).style("opacity", .9);
+            tooltip.html(`Stock: ${d.Stock}<br>Date: ${d3.timeFormat("%B %d, %Y")(d.date)}<br>Value: ${d.value}`)
+                .style("left", (event.pageX + 5) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        })
+        .on("mouseout", function() {
+            tooltip.transition().duration(500).style("opacity", 0);
+        });
+}
+
+
 
     
