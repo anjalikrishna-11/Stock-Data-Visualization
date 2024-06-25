@@ -114,8 +114,4 @@ function updateVisualization(data) {
         .on("mouseout", function() {
             tooltip.transition().duration(500).style("opacity", 0);
         });
-}
-
-
-
-    
+} 
