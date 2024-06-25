@@ -1,9 +1,10 @@
 //Anjali Krishna (U35346496)
 // script.js
+
 d3.csv("mock_stock_data.csv").then(data => {
     // Convert the date and price fields to appropriate formats
     data.forEach(d => {
-        d.date = d3.timeParse("%m/%d/%Y")(d.Date);
+        d.date = d3.timeParse("%Y-%m-%d")(d.Date);
         d.value = +d.Price;
     });
 
@@ -26,8 +27,8 @@ d3.csv("mock_stock_data.csv").then(data => {
         const startDate = d3.select("#startDate").property("value");
         const endDate = d3.select("#endDate").property("value");
         const filteredData = filterData(stockName, [
-            startDate ? new Date(startDate) : new Date("01/01/2023"),
-            endDate ? new Date(endDate) : new Date("12/31/2023")
+            startDate ? new Date(startDate) : d3.min(data, d => d.date),
+            endDate ? new Date(endDate) : d3.max(data, d => d.date)
         ]);
         // Clear previous visualization
         d3.select("svg").selectAll("*").remove();
@@ -48,7 +49,7 @@ d3.csv("mock_stock_data.csv").then(data => {
 function updateVisualization(data) {
     const svgWidth = 600;
     const svgHeight = 600;
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const margin = { top: 30, right: 40, bottom: 60, left: 50 };
     const width = svgWidth - margin.left - margin.right;
     const height = svgHeight - margin.top - margin.bottom;
 
@@ -68,7 +69,7 @@ function updateVisualization(data) {
 
     const y = d3.scaleLinear()
         .range([height, 0])
-        .domain([0, d3.max(data, d => d.value)]);
+        .domain([0, d3.max(data, d => d.value) * 1.1]); // Extend domain slightly beyond max value
 
     // Define the line generator
     const line = d3.line()
@@ -91,14 +92,14 @@ function updateVisualization(data) {
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
         .attr("d", line);
-    
+
     // Create a tooltip div that is hidden by default
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 
     // Add circles for data points and tooltips
-    svg.selectAll(".dot")
+    g.selectAll(".dot")
         .data(data)
         .enter().append("circle")
         .attr("class", "dot")
@@ -114,4 +115,4 @@ function updateVisualization(data) {
         .on("mouseout", function() {
             tooltip.transition().duration(500).style("opacity", 0);
         });
-} 
+}
